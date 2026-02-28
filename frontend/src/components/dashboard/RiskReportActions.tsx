@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import type { DashboardWorkflowState } from '../../types/workflow'
-import { exportRiskReportPdf } from '../../utils/reportPdf'
 
 interface RiskReportActionsProps {
   workflow: DashboardWorkflowState
@@ -10,11 +9,18 @@ interface RiskReportActionsProps {
 
 export const RiskReportActions = ({ workflow }: RiskReportActionsProps) => {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [isExporting, setIsExporting] = useState(false)
 
-  const handleExportPdf = () => {
-    const filename = exportRiskReportPdf(workflow)
-    setToastMessage(`Exported ${filename}`)
-    window.setTimeout(() => setToastMessage(null), 2200)
+  const handleExportPdf = async () => {
+    setIsExporting(true)
+    try {
+      const { exportRiskReportPdf } = await import('../../utils/reportPdf')
+      const filename = exportRiskReportPdf(workflow)
+      setToastMessage(`Exported ${filename}`)
+      window.setTimeout(() => setToastMessage(null), 2200)
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   return (
@@ -22,8 +28,8 @@ export const RiskReportActions = ({ workflow }: RiskReportActionsProps) => {
       <Link to="/" className="btn-secondary">
         New Analysis
       </Link>
-      <button type="button" onClick={handleExportPdf} className="btn-primary">
-        Export PDF Report
+      <button type="button" onClick={handleExportPdf} className="btn-primary" disabled={isExporting}>
+        {isExporting ? 'Exporting...' : 'Export PDF Report'}
       </button>
 
       {toastMessage ? (

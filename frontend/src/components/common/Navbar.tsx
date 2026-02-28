@@ -5,6 +5,7 @@ import { useSystemHealth } from '../../hooks/useSystemHealth'
 const links = [
   { to: '/', label: 'Prescription Upload' },
   { to: '/dashboard', label: 'Risk Dashboard' },
+  { to: '/architecture', label: 'Architecture' },
 ]
 
 export const Navbar = () => {

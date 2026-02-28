@@ -37,24 +37,22 @@ export const RiskDashboardPage = () => {
 
   if (!workflow) {
     return (
-      <section className="bg-surface-light border border-surface-border rounded-xl p-8 shadow-card flex flex-col items-center justify-center min-h-[500px] text-center">
-        <div className="w-16 h-16 bg-brand-blue/10 rounded-full flex items-center justify-center mb-6">
-          <svg className="w-8 h-8 text-brand-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        </div>
+      <section className="bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-3xl p-16 shadow-xl flex flex-col items-center justify-center min-h-[60vh] text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-100/50 via-transparent to-teal-50/20 pointer-events-none" />
+        <svg className="w-16 h-16 text-slate-300 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+        </svg>
         <PageHeader
-          eyebrow="Risk Dashboard"
-          title="No Active Analysis Session"
-          subtitle="Run a prescription extraction to generate risk analytics and graph visualization."
-          className="items-center"
+          eyebrow="Clinical Command Center"
+          title="No Active Intelligence Session"
+          subtitle="Awaiting prescription extraction or manual drug entry to spawn the interaction conflict graph."
         />
-        <div className="mt-8">
-          <Link to="/" className="btn-primary inline-flex items-center gap-2">
+        <div className="mt-8 z-10">
+          <Link to="/" className="px-8 py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 border bg-slate-800 border-slate-800 text-white shadow-lg hover:bg-slate-900 active:scale-95 inline-flex items-center gap-2">
+            Upload Prescription
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
-            Return to Upload
           </Link>
         </div>
       </section>
@@ -66,15 +64,15 @@ export const RiskDashboardPage = () => {
       <PageHeader
         eyebrow="Clinical Insights"
         title="Medication Risk Command Center"
-        subtitle={`Analysis generated for ${workflow.extractedDrugs.length} medication(s) using ${workflow.executionMode === 'queued' ? 'queued workers' : 'direct API mode'}.`}
+        subtitle={`Live topology for ${workflow.extractedDrugs.length} medication(s) computed via ${workflow.executionMode === 'queued' ? 'async workers' : 'direct execution'}.`}
         actions={<RiskReportActions workflow={workflow} />}
       />
 
-      <div className="space-y-5">
+      <div className="space-y-6 mt-6">
         <KpiStrip analysis={workflow.interactionAnalysis} medicationCount={workflow.extractedDrugs.length} />
 
-        <div className="grid gap-5 xl:grid-cols-[1.25fr_1fr]">
-          <div className="space-y-5">
+        <div className="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
+          <div className="space-y-6">
             <RiskCard analysis={workflow.interactionAnalysis} />
             <motion.div variants={cardMotion} initial="initial" animate="animate" transition={{ delay: 0.08 }}>
               <InteractionList interactions={workflow.interactionAnalysis.interactions} />
@@ -84,7 +82,7 @@ export const RiskDashboardPage = () => {
             </motion.div>
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-6">
             <motion.div variants={cardMotion} initial="initial" animate="animate" transition={{ delay: 0.03 }}>
               <WorkflowMetaCard
                 executionMode={workflow.executionMode}
@@ -98,10 +96,10 @@ export const RiskDashboardPage = () => {
               </Suspense>
             </motion.div>
             <motion.div variants={cardMotion} initial="initial" animate="animate" transition={{ delay: 0.1 }}>
-              <div className="glass-card">
-                <p className="section-title">Interaction Graph</p>
-                <p className="subtle-text mt-1">Visual conflict topology across extracted medications.</p>
-                <div className="mt-4">
+              <div className="bg-white/90 backdrop-blur-xl border border-slate-200/60 rounded-3xl p-8 shadow-xl relative overflow-hidden h-full flex flex-col">
+                <p className="text-xl font-bold text-slate-800 tracking-tight">Interaction Graph</p>
+                <p className="text-sm font-semibold text-slate-400 mt-1 uppercase tracking-wider">Visual conflict topology across extracted medications.</p>
+                <div className="mt-6 flex-1 min-h-[400px]">
                   <Suspense fallback={<LoadingState label="Rendering interaction graph..." />}>
                     <InteractionGraph
                       drugs={workflow.extractedDrugs}

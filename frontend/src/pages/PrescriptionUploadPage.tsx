@@ -182,9 +182,10 @@ export const PrescriptionUploadPage = () => {
         variants={dropzoneMotion}
         initial="hidden"
         animate="show"
-        className="grid gap-5 lg:grid-cols-[1.35fr_1fr]"
+        className="grid gap-6 lg:grid-cols-[1.2fr_1fr]"
       >
-        <div className="bg-surface-light border border-surface-border rounded-xl p-8 shadow-card flex flex-col">
+        <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-3xl p-8 shadow-xl flex flex-col relative overflow-hidden group/card">
+          <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-transparent pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity duration-700" />
           <div
             onDragOver={(event) => {
               event.preventDefault()
@@ -197,15 +198,15 @@ export const PrescriptionUploadPage = () => {
               const file = event.dataTransfer.files?.[0] ?? null
               onFilePicked(file)
             }}
-            className={`relative group p-12 rounded-xl border-2 border-dashed transition-all duration-300 ease-out flex flex-col items-center justify-center ${isDragging ? 'border-brand-blue bg-brand-blue/5' : 'border-surface-border bg-surface-muted hover:border-brand-blue hover:bg-brand-blue/5 cursor-pointer'
+            className={`relative group p-12 rounded-2xl border-2 border-dashed transition-all duration-300 ease-out flex flex-col items-center justify-center ${isDragging ? 'border-teal-500 bg-teal-50/50' : 'border-slate-300 bg-slate-50 hover:border-teal-400 hover:bg-teal-50/30 cursor-pointer'
               }`}
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-brand-blue/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
 
-            <svg className="h-10 w-10 text-brand-blue mb-4 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-10 w-10 text-teal-600 mb-4 group-hover:scale-110 transition-transform duration-300 drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
-            <h3 className="text-lg font-semibold text-brand-navy">Upload Prescription</h3>
+            <h3 className="text-lg font-bold text-slate-800 tracking-tight">Upload Prescription</h3>
             <p className="mt-1 text-sm text-gray-500">Drag & drop or browse. AI will auto-extract dosages.</p>
 
             <div className="mt-6">
@@ -245,11 +246,11 @@ export const PrescriptionUploadPage = () => {
             </p>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-4">
+          <div className="mt-8 flex flex-wrap gap-4 relative z-10">
             <button
               onClick={handleExtract}
               disabled={isExtracting || !selectedFile}
-              className="px-6 py-2.5 rounded-lg font-bold text-sm tracking-wide transition-all duration-200 border bg-surface-muted border-surface-border text-brand-navy hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 border bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-sm"
             >
               {isExtracting ? 'Extracting...' : 'Extract Medication'}
             </button>
@@ -257,7 +258,7 @@ export const PrescriptionUploadPage = () => {
             <button
               onClick={handleGenerateClinicalInsights}
               disabled={isGenerating || (executionMode === 'sync' && dosages.length === 0)}
-              className="px-6 py-2.5 rounded-lg font-bold text-sm tracking-wide transition-all duration-200 border bg-brand-blue border-brand-blue/90 text-white shadow-md shadow-brand-blue/20 hover:bg-brand-blue/90 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 border bg-teal-600 border-teal-600 text-white shadow-lg shadow-teal-500/25 hover:bg-teal-700 hover:shadow-teal-500/40 focus:outline-none focus:ring-2 focus:ring-teal-500/50 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
             >
               {isGenerating ? 'Generating Insights...' : 'Generate Risk Dashboard'}
             </button>
@@ -270,36 +271,54 @@ export const PrescriptionUploadPage = () => {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="bg-surface-light border border-surface-border rounded-xl p-6 shadow-card">
-            <p className="section-title">Active Medication Set</p>
-            <p className="subtle-text mt-1">Prepared inputs sent to the interaction and scheduling engines.</p>
+        <div className="space-y-6 relative z-10">
+          <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-3xl p-8 shadow-xl">
+            <p className="text-xl font-bold text-slate-800 tracking-tight">Active Medication Set</p>
+            <p className="text-sm text-slate-500 mt-1">Prepared inputs sent to the interaction and scheduling engines.</p>
 
-            <div className="mt-5 min-h-24 rounded-xl border border-surface-border bg-surface-muted p-4">
+            <div className="mt-5 min-h-24 rounded-2xl border border-slate-200 bg-slate-50 p-5">
               {extractedDrugs.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center mt-6">No medications loaded yet. Extract OCR or add manually.</p>
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <svg className="w-8 h-8 text-slate-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  <p className="text-sm text-slate-500 font-medium">No medications loaded yet.</p>
+                  <p className="text-xs text-slate-400 mt-1">Extract OCR or add manually below.</p>
+                </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {dosages.map((item) => (
-                    <span
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
                       key={item.drug_name}
-                      className="rounded-full border border-brand-blue/20 bg-brand-blue/5 px-3 py-1 text-xs font-semibold text-brand-blue"
+                      className="rounded-full border border-teal-500/20 bg-teal-50 px-4 py-1.5 text-sm font-bold text-teal-700 shadow-sm"
                     >
-                      {item.drug_name} · {item.frequency}/day
-                    </span>
+                      {item.drug_name} <span className="opacity-50 font-medium mx-1">·</span> {item.frequency}/day
+                    </motion.span>
                   ))}
                 </div>
               )}
             </div>
 
             {ocrMutation.data ? (
-              <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">OCR Trace</p>
-                <p className="mt-2 text-sm text-slate-700">Raw Text: {ocrMutation.data.extracted_text}</p>
-                <p className="mt-1 text-sm text-slate-700">
-                  Confidence: {(ocrMutation.data.confidence_score * 100).toFixed(1)}%
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">OCR Trace Verification</p>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    High Confidence
+                  </span>
+                </div>
+                <p className="text-sm font-mono text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100">{ocrMutation.data.extracted_text}</p>
+                <p className="mt-2 text-xs font-medium text-slate-500">
+                  Model Confidence: <span className="text-slate-700 font-bold">{(ocrMutation.data.confidence_score * 100).toFixed(1)}%</span>
                 </p>
-              </div>
+              </motion.div>
             ) : null}
           </div>
 
