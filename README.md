@@ -1,4 +1,4 @@
-# MediGraph.AI: Intelligent Medication Risk & Interaction Analyzer
+# MediGraph.AI: Intelligent Medication Risk & Interaction Analyzer.
 
 **A Graph-Based Pharmaceutical Safety Platform leveraging OCR and Real-Time OpenFDA Integration**
 
