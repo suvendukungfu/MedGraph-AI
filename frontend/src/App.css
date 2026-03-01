@@ -1,42 +1,222 @@
+/* ───────────── Global Reset & Premium Styles ───────────── */
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  text-align: left;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+/* ───────────── Custom Scrollbar ───────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+::-webkit-scrollbar-track {
+  background: transparent;
 }
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 100px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* ───────────── Gradient Mesh Background ───────────── */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.bg-gradient-mesh {
+  background: linear-gradient(-45deg,
+    #0d9488, #0f766e, #115e59, #134e4a,
+    #164e63, #155e75, #0e7490, #0891b2
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.bg-gradient-mesh-light {
+  background: linear-gradient(-45deg,
+    #f0fdfa, #ccfbf1, #e0f2fe, #dbeafe,
+    #f0fdf4, #ecfdf5, #f0f9ff, #eff6ff
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 20s ease infinite;
+}
+
+/* ───────────── Shimmer Effect ───────────── */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  animation: shimmer 2.5s infinite;
+}
+
+/* ───────────── Pulse Ring ───────────── */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
   }
-  to {
-    transform: rotate(360deg);
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
 
-.card {
-  padding: 2em;
+/* ───────────── Glassmorphism Card ───────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-.read-the-docs {
-  color: #888;
+.glass-card-dark {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ───────────── Button Styles ───────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #0d9488, #0f766e);
+  color: white;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3);
+  border: none;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.45);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: scale(0.97);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: white;
+  color: #334155;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* ───────────── Camera/Capture Styles ───────────── */
+@keyframes shutter {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.shutter-flash {
+  animation: shutter 0.4s ease-out;
+}
+
+@keyframes scan-line {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+.scan-line::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #0d9488, transparent);
+  animation: scan-line 2s ease-in-out infinite;
+}
+
+/* ───────────── Tab Indicator ───────────── */
+.tab-active {
+  background: linear-gradient(135deg, #0d9488, #0f766e);
+  color: white;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+}
+
+.tab-inactive {
+  background: transparent;
+  color: #64748b;
+}
+.tab-inactive:hover {
+  background: rgba(241, 245, 249, 0.8);
+  color: #334155;
+}
+
+/* ───────────── Floating Orbs ───────────── */
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -30px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+.floating-orb {
+  animation: float 6s ease-in-out infinite;
+}
+.floating-orb-delay {
+  animation: float 8s ease-in-out infinite;
+  animation-delay: -2s;
+}
+
+/* ───────────── Confidence Meter ───────────── */
+@keyframes meter-fill {
+  from { width: 0%; }
+}
+
+.meter-fill {
+  animation: meter-fill 1s ease-out forwards;
 }
