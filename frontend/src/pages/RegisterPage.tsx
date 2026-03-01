@@ -11,6 +11,14 @@ const fadeUp = {
     show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
 }
 
+const getErrorMessage = (error: unknown, fallback: string): string => {
+    if (error && typeof error === 'object' && 'message' in error) {
+        const message = (error as { message?: unknown }).message
+        if (typeof message === 'string' && message.trim()) return message
+    }
+    return fallback
+}
+
 export const RegisterPage = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -43,8 +51,8 @@ export const RegisterPage = () => {
                 toast.success('Account created successfully!')
                 navigate('/', { replace: true })
             }
-        } catch (err: any) {
-            const message = err.message || 'Failed to create account. Please try again.'
+        } catch (error: unknown) {
+            const message = getErrorMessage(error, 'Failed to create account. Please try again.')
             setError(message)
             toast.error(message)
         } finally {

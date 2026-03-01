@@ -12,6 +12,14 @@ const fadeUp = {
     exit: { opacity: 0, y: -10, transition: { duration: 0.2 } }
 }
 
+const getErrorMessage = (error: unknown, fallback: string): string => {
+    if (error && typeof error === 'object' && 'message' in error) {
+        const message = (error as { message?: unknown }).message
+        if (typeof message === 'string' && message.trim()) return message
+    }
+    return fallback
+}
+
 export const OnboardingPage = () => {
     const [step, setStep] = useState(1)
     const [age, setAge] = useState('')
@@ -63,8 +71,8 @@ export const OnboardingPage = () => {
             }
             toast.success('Your clinical profile has been saved.')
             navigate('/', { replace: true })
-        } catch (err: any) {
-            const message = err.message || 'Failed to complete profile.'
+        } catch (error: unknown) {
+            const message = getErrorMessage(error, 'Failed to complete profile.')
             setError(message)
             toast.error(message)
         } finally {

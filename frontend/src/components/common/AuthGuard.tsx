@@ -24,8 +24,12 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
                     // Update role locally if it somehow changed
                     login({ role: response.data.role })
                 }
-            } catch (e: any) {
-                console.error('Auth verification failed', e.response?.data || e.message)
+            } catch (error: unknown) {
+                if (error && typeof error === 'object' && 'message' in error) {
+                    console.error('Auth verification failed', (error as { message?: string }).message)
+                } else {
+                    console.error('Auth verification failed', error)
+                }
                 logout() // Force clear if token is invalid
             } finally {
                 setVerifying(false)

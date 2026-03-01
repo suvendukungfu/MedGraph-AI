@@ -50,6 +50,14 @@ const formatFileSize = (sizeInBytes: number) => {
   return `${(sizeInBytes / (1024 * 1024)).toFixed(2)} MB`
 }
 
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error && typeof error === 'object' && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    if (typeof message === 'string' && message.trim()) return message
+  }
+  return fallback
+}
+
 export const PrescriptionUploadPage = () => {
   const navigate = useNavigate()
 
@@ -100,8 +108,8 @@ export const PrescriptionUploadPage = () => {
       const result = await ocrMutation.mutateAsync(selectedFile)
       setDosages((previous) => upsertDosage(previous, { drug_name: result.matched_drug, frequency: 1 }))
       toast.success('Successfully extracted medication details.')
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to extract medication details.')
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, 'Failed to extract medication details.'))
     } finally {
       setWorkflowStage(null)
     }

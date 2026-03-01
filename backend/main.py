@@ -10,6 +10,7 @@ from app.api.v1 import auth, interactions, jobs, ocr, scheduling, prescriptions
 from app.core.config import get_settings
 from app.infrastructure.cache.cache import get_cache_client
 from app.infrastructure.db.database import check_database_health, init_database
+from app.services.ocr.ocr_service import get_ocr_runtime_status
 from app.workers.celery_app import celery_app
 
 import structlog
@@ -37,6 +38,14 @@ logger = structlog.get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_database()
+    ocr_status = get_ocr_runtime_status()
+    logger.info(
+        "OCR runtime check",
+        ready=ocr_status["ready"],
+        configured_tesseract_cmd=ocr_status["configured_tesseract_cmd"],
+        ocr_language=ocr_status["ocr_language"],
+        message=ocr_status["message"],
+    )
     logger.info("Application startup complete")
     yield
     logger.info("Application shutting down")
@@ -68,10 +77,13 @@ app.include_router(jobs.router, prefix="/api/v1")
 
 @app.get("/health", tags=["System"])
 async def health_check():
+    ocr_status = get_ocr_runtime_status()
     return {
         "status": "healthy",
         "service": settings.app_name,
         "environment": settings.environment,
+        "ocr_ready": ocr_status["ready"],
+        "ocr_message": ocr_status["message"],
     }
 
 
@@ -84,6 +96,7 @@ async def liveness_check():
 async def readiness_check():
     db_ok = check_database_health()
     cache_ok = get_cache_client().ping()
+    ocr_status = get_ocr_runtime_status()
 
     if celery_app is None:
         queue_ok = False
@@ -99,7 +112,8 @@ async def readiness_check():
             queue_ok = False
             queue_mode = "enabled"
 
-    overall = db_ok and cache_ok and (queue_ok or queue_mode == "disabled")
+    ocr_gate_ok = ocr_status["ready"] or (not settings.ocr_required_for_readiness)
+    overall = db_ok and cache_ok and (queue_ok or queue_mode == "disabled") and ocr_gate_ok
     return {
         "status": "ready" if overall else "degraded",
         "dependencies": {
@@ -107,5 +121,13 @@ async def readiness_check():
             "cache": cache_ok,
             "queue": queue_ok,
             "queue_mode": queue_mode,
+            "ocr": ocr_status["ready"],
+            "ocr_required_for_readiness": settings.ocr_required_for_readiness,
         },
+        "ocr": ocr_status,
     }
+
+
+@app.get("/health/ocr", tags=["System"])
+async def ocr_health_check():
+    return get_ocr_runtime_status()

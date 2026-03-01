@@ -27,9 +27,9 @@ const loadSession = (): RoleSession => {
       displayName: jwtPayload.name || jwtPayload.email,
       isAuthenticated: rawRole !== '__pending__',
       user: {
-        user_id: jwtPayload.sub,
+        user_id: jwtPayload.sub || jwtPayload.email,
         email: jwtPayload.email,
-        name: jwtPayload.name,
+        name: jwtPayload.name || jwtPayload.email,
         picture: jwtPayload.picture,
         role: rawRole !== '__pending__' ? role : undefined,
         tenantId: jwtPayload.tenant_id,

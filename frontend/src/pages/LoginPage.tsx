@@ -11,6 +11,14 @@ const fadeUp = {
     show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
 }
 
+const getErrorMessage = (error: unknown, fallback: string): string => {
+    if (error && typeof error === 'object' && 'message' in error) {
+        const message = (error as { message?: unknown }).message
+        if (typeof message === 'string' && message.trim()) return message
+    }
+    return fallback
+}
+
 export const LoginPage = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -47,8 +55,8 @@ export const LoginPage = () => {
                 toast.success('Welcome back!')
                 navigate('/', { replace: true })
             }
-        } catch (err: any) {
-            const message = err.message || 'Invalid credentials. Please try again.'
+        } catch (error: unknown) {
+            const message = getErrorMessage(error, 'Invalid credentials. Please try again.')
             setError(message)
             toast.error(message)
         } finally {
