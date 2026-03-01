@@ -227,15 +227,31 @@ export const medigraphApi = {
 
     const prescribed_drugs = dosages.map((item) => item.drug_name)
 
-    const [interactionJob, scheduleJob] = await Promise.all([
-      medigraphApi.submitInteractionJob({ prescribed_drugs }),
-      medigraphApi.submitScheduleJob({ dosages }),
-    ])
+    let interactionAnalysis: InteractionAnalysisResult
+    let schedule: ScheduleResult
 
-    const [interactionAnalysis, schedule] = await Promise.all([
-      waitForJobResult<InteractionAnalysisResult>(interactionJob.job_id),
-      waitForJobResult<ScheduleResult>(scheduleJob.job_id),
-    ])
+    try {
+      const [interactionJob, scheduleJob] = await Promise.all([
+        medigraphApi.submitInteractionJob({ prescribed_drugs }),
+        medigraphApi.submitScheduleJob({ dosages }),
+      ])
+
+      const [asyncInteraction, asyncSchedule] = await Promise.all([
+        waitForJobResult<InteractionAnalysisResult>(interactionJob.job_id),
+        waitForJobResult<ScheduleResult>(scheduleJob.job_id),
+      ])
+
+      interactionAnalysis = asyncInteraction
+      schedule = asyncSchedule
+    } catch (error) {
+      console.warn('Async job queue unavailable or failed, falling back to synchronous execution:', error)
+      const [syncInteraction, syncSchedule] = await Promise.all([
+        medigraphApi.analyzeInteractions({ prescribed_drugs }),
+        medigraphApi.optimizeSchedule({ dosages }),
+      ])
+      interactionAnalysis = syncInteraction
+      schedule = syncSchedule
+    }
 
     return {
       ocr,

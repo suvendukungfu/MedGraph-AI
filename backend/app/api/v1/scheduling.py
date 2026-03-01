@@ -7,13 +7,12 @@ from pydantic import BaseModel
 
 from app.api.dependencies import (
     get_cache,
-    get_interaction_records,
+    fetch_relevant_interactions,
     get_schedule_optimizer,
     rate_limit_dependency,
 )
 from app.core.config import get_settings
 from app.infrastructure.cache.cache import CacheClient, build_cache_key
-from app.services.interactions.models import InteractionRecord
 from app.services.scheduling.schedule_optimizer import MedicationDosage, ScheduleOptimizer
 
 router = APIRouter(
@@ -33,7 +32,6 @@ class ScheduleRequest(BaseModel):
 async def generate_schedule(
     request: ScheduleRequest,
     optimizer: ScheduleOptimizer = Depends(get_schedule_optimizer),
-    db_records: List[InteractionRecord] = Depends(get_interaction_records),
     cache: CacheClient = Depends(get_cache),
 ):
     if not request.dosages:
@@ -42,8 +40,13 @@ async def generate_schedule(
             detail="Dosage list cannot be empty.",
         )
 
+    # Fetch MongoDB records specific to the drugs requested to optimize memory
+    drug_list = [d.drug_name for d in request.dosages]
+    db_records = fetch_relevant_interactions(drug_list)
+
     records_payload = [row.model_dump(mode="json") for row in db_records]
     dosages_payload = [row.model_dump(mode="json") for row in request.dosages]
+    
     cache_key = build_cache_key(
         namespace="schedule",
         payload={"dosages": dosages_payload, "records": records_payload, "v": 1},

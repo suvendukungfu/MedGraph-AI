@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+import re
 from typing import List
 
 from fastapi import Depends, HTTPException, Request, status
@@ -36,7 +37,7 @@ def get_medication_repository() -> list[str]:
     Used for OCR fuzzy matching.
     """
     db = get_mongo_db()
-    if not db:
+    if db is None:
         return ["ASPIRIN", "WARFARIN", "METFORMIN", "AMOXICILLIN", "LISINOPRIL"]
     
     try:
@@ -51,9 +52,10 @@ def fetch_relevant_interactions(drug_list: List[str]) -> List[InteractionRecord]
     """
     Optimized MongoDB fetcher that only retrieves interactions involving 
     the drugs currently in the clinical evaluation list.
+    Uses case-insensitive regex to match drug names.
     """
     db = get_mongo_db()
-    if not db:
+    if db is None:
         # Static baseline for local dev
         return [
             InteractionRecord(
@@ -65,14 +67,18 @@ def fetch_relevant_interactions(drug_list: List[str]) -> List[InteractionRecord]
         ]
 
     try:
-        normalized_list = [d.strip().upper() for d in drug_list]
-        # Regex search to ensure case-insensitive matching in Mongo if stored differently
+        # Create case-insensitive regex patterns for each drug to handle Title Case or mixed casing in Mongo
+        patterns = []
+        for d in drug_list:
+            escaped_d = re.escape(d.strip())
+            patterns.append(re.compile(f"^{escaped_d}$", re.IGNORECASE))
+        
         query = {
             "$or": [
-                {"drug1_name": {"$in": normalized_list}},
-                {"drug2_name": {"$in": normalized_list}},
-                {"drug_a": {"$in": normalized_list}},
-                {"drug_b": {"$in": normalized_list}}
+                {"drug1_name": {"$in": patterns}},
+                {"drug2_name": {"$in": patterns}},
+                {"drug_a": {"$in": patterns}},
+                {"drug_b": {"$in": patterns}}
             ]
         }
         
@@ -92,6 +98,7 @@ def fetch_relevant_interactions(drug_list: List[str]) -> List[InteractionRecord]
             except ValueError:
                 severity = SeverityLevel.MILD
 
+            # Internal engine expects UPPERCASE
             records.append(
                 InteractionRecord(
                     drug_a=drug_a.upper(),
