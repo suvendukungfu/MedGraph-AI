@@ -115,3 +115,5 @@ export const RiskDashboardPage = () => {
     </section>
   )
 }
+
+# fix(frontend): handle null states gracefully in interaction graph rendering
