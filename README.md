@@ -1,5 +1,6 @@
 # MediGraph.AI: Intelligent Medication Risk & Interaction Analyzer.
 hosting link : https://med-graph-ai.vercel.app/login
+ppt and video link:https://drive.google.com/drive/folders/1VDo9n7hJHQQMthGWU2YWeBP8MdMQSAWI?usp=sharing
 
 
 **A Graph-Based Pharmaceutical Safety Platform leveraging OCR and Real-Time OpenFDA Integration**
