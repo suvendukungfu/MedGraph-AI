@@ -150,6 +150,6 @@ app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });
 
-# refactor(auth): simplify session ID generation logic
+// refactor(auth): simplify session ID generation logic
 
-# refactor(backend): harden session validation middleware
+// refactor(backend): harden session validation middleware

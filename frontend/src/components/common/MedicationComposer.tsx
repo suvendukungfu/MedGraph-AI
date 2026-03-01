@@ -146,4 +146,4 @@ export const MedicationComposer = ({ dosages, onChange }: MedicationComposerProp
   )
 }
 
-# refactor(frontend): improve type safety in medication composer component
+// refactor(frontend): improve type safety in medication composer component

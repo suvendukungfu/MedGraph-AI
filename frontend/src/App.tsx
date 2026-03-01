@@ -121,4 +121,4 @@ const App = () => {
 
 export default App
 
-# chore(lint): resolve minor hydration warnings in React rendering engine
+// chore(lint): resolve minor hydration warnings in React rendering engine

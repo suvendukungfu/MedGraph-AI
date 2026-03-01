@@ -50,4 +50,4 @@ export const RoleHubPage = () => {
   )
 }
 
-# feat(frontend): add subtle entry animations to service cards on RoleHub
+// feat(frontend): add subtle entry animations to service cards on RoleHub

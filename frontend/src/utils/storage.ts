@@ -17,4 +17,4 @@ export const loadWorkflow = (): DashboardWorkflowState | null => {
   }
 }
 
-# refactor(utils): unify date formatting across clinical views
+// refactor(utils): unify date formatting across clinical views

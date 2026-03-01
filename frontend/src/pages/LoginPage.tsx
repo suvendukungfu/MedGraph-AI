@@ -85,4 +85,4 @@ export const LoginPage = () => {
     )
 }
 
-# style(login): fine-tune entrance sequence timing for LoginPage
+// style(login): fine-tune entrance sequence timing for LoginPage
