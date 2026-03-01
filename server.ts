@@ -80,6 +80,18 @@ app.get('/', (req, res) => {
     }
 });
 
+// JSON Me endpoint for the React App
+app.get('/api/me', (req, res) => {
+    const sessionId = req.cookies.sessionId;
+    const user = getOptionalUser(sessionId);
+
+    if (user) {
+        res.json({ authenticated: true, user });
+    } else {
+        res.status(401).json({ authenticated: false, user: null });
+    }
+});
+
 
 // 5. Protected Route Example
 app.get('/dashboard', (req, res) => {
