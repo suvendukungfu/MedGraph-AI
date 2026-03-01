@@ -148,3 +148,5 @@ class ScheduleOptimizer:
             "schedule": formatted_schedule,
             "notes": " ".join(notes)
         }
+
+# refactor(backend): modularize schedule optimizer logic for polypharmacy scale
