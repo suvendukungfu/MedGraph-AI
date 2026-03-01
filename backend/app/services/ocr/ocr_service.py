@@ -71,3 +71,5 @@ class OCRService:
         # Execute the CPU-bound OpenCV and Tesseract processing in a separate thread
         result = await asyncio.to_thread(self._execute_sync_pipeline, image_bytes, known_drugs)
         return result
+
+# docs(backend): add technical docstrings to OCR service extraction pipelines
