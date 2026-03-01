@@ -534,15 +534,15 @@ ORDER BY i.severity DESC;
 
 ### 2.3. Technology Stack Rationale
 
-| Component | Technology | Justification |
-|-----------|-----------|---------------|
-| **API Framework** | FastAPI | Async/await support for concurrent request handling; automatic OpenAPI documentation; Pydantic validation eliminates 90% of input sanitization vulnerabilities |
-| **ORM** | SQLAlchemy 2.0 | Type-safe query construction; relationship lazy-loading optimization; Alembic migration versioning |
-| **Database** | SQLite (WAL mode) | Zero-configuration; ACID compliance; WAL mode enables concurrent reads during writes; sufficient for <10K patient deployments |
-| **Frontend** | React 18 + Vite | Virtual DOM diffing for performance; concurrent rendering; Vite's HMR reduces development iteration cycles by 3-5x |
-| **Styling** | TailwindCSS | Atomic CSS eliminates unused style bloat; utility-first approach reduces CSS bundle size by ~80% vs traditional methodologies |
-| **Graph Rendering** | Cytoscape.js | Canvas-based rendering handles 1000+ node graphs; layout algorithms (force-directed, hierarchical) optimized for biological networks |
-| **OCR Engine** | Tesseract 5.x + OpenCV | Multi-language trained models; OpenCV preprocessing achieves 94%+ accuracy on prescription scans |
+| Component           | Technology             | Justification                                                                                                                                                  |
+| ------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **API Framework**   | FastAPI                | Async/await support for concurrent request handling; automatic OpenAPI documentation; Pydantic validation eliminates 90% of input sanitization vulnerabilities |
+| **ORM**             | SQLAlchemy 2.0         | Type-safe query construction; relationship lazy-loading optimization; Alembic migration versioning                                                             |
+| **Database**        | SQLite (WAL mode)      | Zero-configuration; ACID compliance; WAL mode enables concurrent reads during writes; sufficient for <10K patient deployments                                  |
+| **Frontend**        | React 18 + Vite        | Virtual DOM diffing for performance; concurrent rendering; Vite's HMR reduces development iteration cycles by 3-5x                                             |
+| **Styling**         | TailwindCSS            | Atomic CSS eliminates unused style bloat; utility-first approach reduces CSS bundle size by ~80% vs traditional methodologies                                  |
+| **Graph Rendering** | Cytoscape.js           | Canvas-based rendering handles 1000+ node graphs; layout algorithms (force-directed, hierarchical) optimized for biological networks                           |
+| **OCR Engine**      | Tesseract 5.x + OpenCV | Multi-language trained models; OpenCV preprocessing achieves 94%+ accuracy on prescription scans                                                               |
 
 ---
 
@@ -576,6 +576,7 @@ PATIENT_PROFILE (1) ──< (N) VISITS (N) >── (1) DOCTOR_PROFILE
 **Schema Specifications**:
 
 **PATIENT_PROFILE**
+
 - `patient_id` (PK, ObjectId): Indexed primary key
 - `demographic_info`: JSONB field storing structured patient demographics
 - `blood_group`: Enum constraint (A+, A-, B+, B-, AB+, AB-, O+, O-)
@@ -583,11 +584,13 @@ PATIENT_PROFILE (1) ──< (N) VISITS (N) >── (1) DOCTOR_PROFILE
 - `medical_history`: Normalized JSONB structure
 
 **DOCTOR_PROFILE**
+
 - `doctor_id` (PK, ObjectId)
 - `specialization`: String with index for filtering queries
 - `clinic_name`, `clinic_address`: Denormalized for read optimization
 
 **PRESCRIPTIONS**
+
 - `prescription_id` (PK)
 - `patient_id` (FK → PATIENT_PROFILE)
 - `doctor_id` (FK → DOCTOR_PROFILE)
@@ -596,6 +599,7 @@ PATIENT_PROFILE (1) ──< (N) VISITS (N) >── (1) DOCTOR_PROFILE
 - `created_at`: Timestamp with timezone (UTC)
 
 **DRUGS**
+
 - `drug_id` (PK, ObjectId)
 - `generic_name`, `brand_name`: Both indexed for fuzzy search
 - `drug_class`: Categorical field (e.g., "Anticoagulant", "NSAID")
@@ -603,6 +607,7 @@ PATIENT_PROFILE (1) ──< (N) VISITS (N) >── (1) DOCTOR_PROFILE
 - `contraindications`: Array type
 
 **INTERACTIONS**
+
 - `interaction_id` (PK)
 - `drug_a_id`, `drug_b_id` (FK → DRUGS): Composite index for bidirectional lookups
 - `severity`: Enum (Minor, Moderate, Major, Contraindicated)
@@ -610,6 +615,7 @@ PATIENT_PROFILE (1) ──< (N) VISITS (N) >── (1) DOCTOR_PROFILE
 - `recommendation`: Actionable clinical guidance
 
 **SCHEDULES**
+
 - `schedule_id` (PK)
 - `patient_id` (FK)
 - `prescription_id` (FK)
@@ -617,6 +623,7 @@ PATIENT_PROFILE (1) ──< (N) VISITS (N) >── (1) DOCTOR_PROFILE
 - `status`: Enum (Active, Completed, Cancelled)
 
 **DRUG_COMPOSITIONS**
+
 - Junction table enabling N:N relationships for combination drugs
 - `composition_id` (PK)
 - `parent_drug_id` (FK)
@@ -624,6 +631,7 @@ PATIENT_PROFILE (1) ──< (N) VISITS (N) >── (1) DOCTOR_PROFILE
 - `ratio`: Float (composition percentage)
 
 **ALERTS**
+
 - `alert_id` (PK)
 - `patient_id` (FK)
 - `type`: Enum (Interaction_Detected, Missed_Dose, Lab_Value_Critical)
@@ -727,6 +735,7 @@ $$
 $$
 
 The system maintains a decision log capturing:
+
 - Interaction detection timestamp
 - Source evidence (PubMed ID, clinical trial reference)
 - Algorithmic path traversed
@@ -752,6 +761,7 @@ The backend exposes a production-grade REST API following **JSON:API v1.1** spec
 `POST /api/v1/interactions/analyze`
 
 **Request Payload**:
+
 ```json
 {
   "patient_id": "PAT_001",
@@ -759,8 +769,8 @@ The backend exposes a production-grade REST API following **JSON:API v1.1** spec
   "temporal_context": {
     "prescription_date": "2026-02-28T10:30:00Z",
     "scheduled_doses": [
-      {"drug_id": "DRG_12345", "time": "08:00", "frequency": "BID"},
-      {"drug_id": "DRG_67890", "time": "08:00", "frequency": "TID"}
+      { "drug_id": "DRG_12345", "time": "08:00", "frequency": "BID" },
+      { "drug_id": "DRG_67890", "time": "08:00", "frequency": "TID" }
     ]
   }
 }
