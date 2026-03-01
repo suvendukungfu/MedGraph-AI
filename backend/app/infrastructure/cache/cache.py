@@ -148,3 +148,5 @@ def get_cache_client() -> CacheClient:
     if _cache_client_singleton is None:
         _cache_client_singleton = CacheClient()
     return _cache_client_singleton
+
+# perf(backend): add local caching layer for frequent medicine lookups
