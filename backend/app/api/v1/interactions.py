@@ -62,3 +62,5 @@ async def check_interactions(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Interaction engine failure: {str(exc)}",
         )
+
+# style(backend): apply consistent naming conventions across internal API routers
