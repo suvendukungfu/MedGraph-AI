@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthSession } from '../../hooks/useAuthSession'
+import { parseJwtFromCookie } from '../../utils/jwtCookie'
 
 export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
     const [verifying, setVerifying] = useState(true)
@@ -10,15 +11,36 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         const verifySession = async () => {
             try {
-                // Fetch to our auth server proxy
-                const response = await fetch('/api/me')
+                // 1. Try the local JWT cookie first (fastest — no network needed)
+                const jwtPayload = parseJwtFromCookie()
+                if (jwtPayload && jwtPayload.email && jwtPayload.role && jwtPayload.role !== '__pending__') {
+                    login({
+                        user_id: jwtPayload.sub,
+                        email: jwtPayload.email,
+                        name: jwtPayload.name,
+                        picture: jwtPayload.picture,
+                        role: jwtPayload.role,
+                        tenantId: jwtPayload.tenant_id,
+                        expires_at: jwtPayload.exp,
+                    })
+                    setVerifying(false)
+                    return
+                }
+
+                // 2. Fallback: call the FastAPI /me endpoint (validates the JWT server-side)
+                const response = await fetch('/api/v1/auth/me', { credentials: 'include' })
                 if (response.ok) {
                     const data = await response.json()
-                    if (data.authenticated && data.user) {
-                        login(data.user)
+                    if (data.email && data.role) {
+                        login({
+                            user_id: data.user_id,
+                            email: data.email,
+                            name: data.name,
+                            picture: data.picture,
+                            role: data.role,
+                            tenantId: data.tenant_id,
+                        })
                     }
-                } else {
-                    // Not authenticated on backend
                 }
             } catch (e) {
                 console.error('Auth verification failed', e)
@@ -28,7 +50,7 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
         }
 
         verifySession()
-    }, [login])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (verifying) {
         return (
@@ -45,7 +67,6 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
     }
 
     if (!session.isAuthenticated) {
-        // Redirect them to the /login page, but save the current location they were trying to go to
         return <Navigate to="/login" state={{ from: location }} replace />
     }
 

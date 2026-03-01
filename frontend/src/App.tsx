@@ -6,6 +6,7 @@ import { LoadingState } from './components/common/LoadingState'
 import { RoleGuard } from './components/common/RoleGuard'
 import { AuthGuard } from './components/common/AuthGuard'
 import { LoginPage } from './pages/LoginPage'
+import { OnboardingPage } from './pages/OnboardingPage'
 
 const PrescriptionUploadPage = lazy(() =>
   import('./pages/PrescriptionUploadPage').then((module) => ({
@@ -66,6 +67,7 @@ const App = () => {
     >
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
 
         <Route
           element={

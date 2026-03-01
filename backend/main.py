@@ -6,7 +6,7 @@ from logging.config import dictConfig
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import interactions, jobs, ocr, scheduling
+from app.api.v1 import auth, interactions, jobs, ocr, scheduling
 from app.core.config import get_settings
 from app.infrastructure.cache.cache import get_cache_client
 from app.infrastructure.db.database import check_database_health, init_database
@@ -56,6 +56,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router, prefix="/api/v1")
 app.include_router(ocr.router, prefix="/api/v1")
 app.include_router(interactions.router, prefix="/api/v1")
 app.include_router(scheduling.router, prefix="/api/v1")
