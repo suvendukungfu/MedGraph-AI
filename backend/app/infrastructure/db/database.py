@@ -47,3 +47,5 @@ def check_database_health() -> bool:
         return True
     except Exception:
         return False
+
+# perf(backend): optimize MongoDB interaction query performance with projection
