@@ -64,3 +64,5 @@ async def check_interactions(
         )
 
 # style(backend): apply consistent naming conventions across internal API routers
+
+# refactor(api): implement consistent error envelope for all v1 endpoints
