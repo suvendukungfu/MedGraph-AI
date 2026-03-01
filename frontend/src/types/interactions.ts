@@ -28,3 +28,5 @@ export interface InteractionAnalysisResult {
 export interface AnalyzeInteractionsPayload {
   prescribed_drugs: string[]
 }
+
+# refactor(types): consolidate global clinical interfaces into shared library
