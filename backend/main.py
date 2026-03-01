@@ -12,40 +12,40 @@ from app.infrastructure.cache.cache import get_cache_client
 from app.infrastructure.db.database import check_database_health, init_database
 from app.workers.celery_app import celery_app
 
+import structlog
+from contextlib import asynccontextmanager
+
 settings = get_settings()
 
+structlog.configure(
+    processors=[
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.JSONRenderer()
+    ],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
 
-def configure_logging() -> None:
-    dictConfig(
-        {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "default": {
-                    "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
-                }
-            },
-            "handlers": {
-                "default": {
-                    "class": "logging.StreamHandler",
-                    "formatter": "default",
-                }
-            },
-            "root": {
-                "handlers": ["default"],
-                "level": settings.log_level,
-            },
-        }
-    )
+logger = structlog.get_logger(__name__)
 
-
-configure_logging()
-logger = logging.getLogger(__name__)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_database()
+    logger.info("Application startup complete")
+    yield
+    logger.info("Application shutting down")
 
 app = FastAPI(
     title=settings.app_name,
     description="A graph-based polypharmacy safety and medication coordination platform.",
     version="1.1.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -64,10 +64,6 @@ app.include_router(scheduling.router, prefix="/api/v1")
 app.include_router(jobs.router, prefix="/api/v1")
 
 
-@app.on_event("startup")
-async def startup_event() -> None:
-    init_database()
-    logger.info("Application startup complete")
 
 
 @app.get("/health", tags=["System"])

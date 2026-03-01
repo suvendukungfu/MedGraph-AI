@@ -57,6 +57,8 @@ const CaretakerDashboardPage = lazy(() =>
   })),
 )
 
+import { Toaster } from 'sonner'
+
 const App = () => {
   return (
     <Suspense
@@ -66,6 +68,7 @@ const App = () => {
         </div>
       }
     >
+      <Toaster position="top-right" richColors />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

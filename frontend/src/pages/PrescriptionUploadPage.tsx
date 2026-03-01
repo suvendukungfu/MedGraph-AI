@@ -14,6 +14,7 @@ import { useScheduleOptimization } from '../hooks/useScheduleOptimization'
 import type { MedicationDosageInput } from '../types/schedule'
 import type { DashboardWorkflowState } from '../types/workflow'
 import { saveWorkflow } from '../utils/storage'
+import { toast } from 'sonner'
 
 const dropzoneMotion = {
   hidden: { opacity: 0, y: 8 },
@@ -98,6 +99,9 @@ export const PrescriptionUploadPage = () => {
     try {
       const result = await ocrMutation.mutateAsync(selectedFile)
       setDosages((previous) => upsertDosage(previous, { drug_name: result.matched_drug, frequency: 1 }))
+      toast.success('Successfully extracted medication details.')
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to extract medication details.')
     } finally {
       setWorkflowStage(null)
     }
@@ -161,10 +165,12 @@ export const PrescriptionUploadPage = () => {
         executionMode === 'queued' ? await buildQueuedWorkflow() : await buildSyncWorkflow()
 
       saveWorkflow(workflowPayload)
+      toast.success('Generated Risk Dashboard successfully!')
       navigate('/dashboard', { state: workflowPayload })
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to build clinical insights.'
       setGlobalError(message)
+      toast.error(message)
     } finally {
       setWorkflowStage(null)
     }

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Activity, ShieldCheck, Mail, Lock, Phone } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { httpClient } from '../api/httpClient'
+import { toast } from 'sonner'
 
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -36,12 +37,16 @@ export const RegisterPage = () => {
 
             // If patient, throw to onboarding, else throw to dashboard
             if (data.role === 'patient') {
+                toast.success('Account created successfully! Please complete your profile.')
                 navigate('/onboarding', { replace: true })
             } else {
+                toast.success('Account created successfully!')
                 navigate('/', { replace: true })
             }
         } catch (err: any) {
-            setError(err.message || 'Failed to create account. Please try again.')
+            const message = err.message || 'Failed to create account. Please try again.'
+            setError(message)
+            toast.error(message)
         } finally {
             setLoading(false)
         }

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Activity, ArrowRight, Check } from 'lucide-react'
 import { httpClient } from '../api/httpClient'
 import { useAuthStore } from '../store/authStore'
+import { toast } from 'sonner'
 
 const fadeUp = {
     hidden: { opacity: 0, y: 10 },
@@ -60,9 +61,12 @@ export const OnboardingPage = () => {
             if (token && role) {
                 setCredentials(token, role, false)
             }
+            toast.success('Your clinical profile has been saved.')
             navigate('/', { replace: true })
         } catch (err: any) {
-            setError(err.message || 'Failed to complete profile.')
+            const message = err.message || 'Failed to complete profile.'
+            setError(message)
+            toast.error(message)
         } finally {
             setLoading(false)
         }

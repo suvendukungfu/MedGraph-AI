@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Activity, ShieldCheck, Mail, Lock } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { httpClient } from '../api/httpClient'
+import { toast } from 'sonner'
 
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -40,12 +41,16 @@ export const LoginPage = () => {
             setCredentials(data.access_token, data.role, data.is_new)
 
             if (data.is_new) {
+                toast.success('Account created successfully! Let\'s set up your profile.')
                 navigate('/onboarding', { replace: true })
             } else {
+                toast.success('Welcome back!')
                 navigate('/', { replace: true })
             }
         } catch (err: any) {
-            setError(err.message || 'Invalid credentials. Please try again.')
+            const message = err.message || 'Invalid credentials. Please try again.'
+            setError(message)
+            toast.error(message)
         } finally {
             setLoading(false)
         }
