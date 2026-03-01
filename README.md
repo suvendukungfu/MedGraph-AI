@@ -1689,3 +1689,5 @@ We welcome contributions from the community. Please review our contribution guid
 **Last Updated**: February 28, 2026  
 **Version**: 2.0.0  
 **Build Status**: ![CI](https://github.com/suvendukungfu/MedGraph-AI/workflows/CI/badge.svg)
+
+# docs(repo): update main README with senior-level architecture overview
