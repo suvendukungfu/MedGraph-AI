@@ -4,6 +4,8 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/common/AppLayout'
 import { LoadingState } from './components/common/LoadingState'
 import { RoleGuard } from './components/common/RoleGuard'
+import { AuthGuard } from './components/common/AuthGuard'
+import { LoginPage } from './pages/LoginPage'
 
 const PrescriptionUploadPage = lazy(() =>
   import('./pages/PrescriptionUploadPage').then((module) => ({
@@ -63,7 +65,15 @@ const App = () => {
       }
     >
       <Routes>
-        <Route element={<AppLayout />}>
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route
+          element={
+            <AuthGuard>
+              <AppLayout />
+            </AuthGuard>
+          }
+        >
           <Route path="/" element={<PrescriptionUploadPage />} />
           <Route path="/dashboard" element={<RiskDashboardPage />} />
           <Route path="/architecture" element={<ArchitectureBlueprintPage />} />
