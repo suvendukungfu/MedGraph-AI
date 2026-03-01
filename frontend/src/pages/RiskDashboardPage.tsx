@@ -117,3 +117,5 @@ export const RiskDashboardPage = () => {
 }
 
 # fix(frontend): handle null states gracefully in interaction graph rendering
+
+# style(dashboard): improve chart spacing on mobile viewports
