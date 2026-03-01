@@ -145,3 +145,5 @@ export const MedicationComposer = ({ dosages, onChange }: MedicationComposerProp
     </div>
   )
 }
+
+# refactor(frontend): improve type safety in medication composer component
