@@ -53,7 +53,7 @@ async def process_ocr_in_background(
 async def upload_prescription(
     background_tasks: BackgroundTasks,
     image: UploadFile = File(...),
-    current_user: User = Depends(require_role([UserRole.PATIENT, UserRole.CARETAKER, UserRole.DOCTOR])),
+    current_user: User = Depends(require_role(UserRole.PATIENT, UserRole.CARETAKER, UserRole.DOCTOR)),
     ocr_service: OCRService = Depends(get_ocr_service),
     known_drugs: list[str] = Depends(get_medication_repository),
     db: Session = Depends(get_db)
@@ -109,7 +109,7 @@ async def upload_prescription(
 @router.get("/{prescription_id}", response_model=Dict[str, Any])
 async def get_prescription(
     prescription_id: str,
-    current_user: User = Depends(require_role([UserRole.PATIENT, UserRole.CARETAKER, UserRole.DOCTOR])),
+    current_user: User = Depends(require_role(UserRole.PATIENT, UserRole.CARETAKER, UserRole.DOCTOR)),
     db: Session = Depends(get_db)
 ):
     prescription = db.query(Prescription).filter(Prescription.id == prescription_id).first()
@@ -132,7 +132,7 @@ async def get_prescription(
 
 @router.get("/", response_model=Dict[str, Any])
 async def list_prescriptions(
-    current_user: User = Depends(require_role([UserRole.PATIENT, UserRole.CARETAKER])),
+    current_user: User = Depends(require_role(UserRole.PATIENT, UserRole.CARETAKER)),
     db: Session = Depends(get_db)
 ):
     prescriptions = db.query(Prescription).filter(Prescription.patient_id == current_user.id).order_by(Prescription.upload_date.desc()).all()
