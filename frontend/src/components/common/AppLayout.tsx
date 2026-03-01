@@ -22,7 +22,7 @@ const routeTitle: Record<string, string> = {
 
 export const AppLayout = () => {
   const { data } = useSystemHealth()
-  const { session } = useAuthSession()
+  const { session, logout } = useAuthSession()
   const location = useLocation()
 
   const isReady = data?.status === 'ready'
@@ -77,6 +77,16 @@ export const AppLayout = () => {
           <div className="rounded-xl border border-surface-border bg-surface-muted px-4 py-3 text-xs text-gray-500">
             Active Role: <span className="font-semibold uppercase text-brand-navy">{session.role}</span>
           </div>
+
+          <button
+            onClick={logout}
+            className="w-full flex items-center justify-center gap-2 rounded-xl border border-red-100 bg-red-50/50 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Sign Out
+          </button>
         </div>
       </aside>
 
@@ -85,8 +95,22 @@ export const AppLayout = () => {
           <h1 className="text-xl font-semibold text-brand-navy">{title}</h1>
           <div className="flex items-center gap-4">
             <RoleSwitcher />
-            <div className="h-10 rounded-full bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center px-3 text-brand-blue font-bold text-sm">
-              {session.displayName}
+            <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
+              <div className="text-right">
+                <p className="text-sm font-bold text-slate-800 leading-none">{session.displayName}</p>
+                <p className="text-[11px] text-slate-500 font-medium mt-1 uppercase tracking-wider">{session.role}</p>
+              </div>
+              {session.user?.picture ? (
+                <img
+                  src={session.user.picture}
+                  alt={session.displayName}
+                  className="h-10 w-10 rounded-full border-2 border-brand-blue/20 p-0.5 object-cover"
+                />
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center text-brand-blue font-bold text-sm">
+                  {session.displayName.charAt(0)}
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -107,9 +131,3 @@ export const AppLayout = () => {
     </div>
   )
 }
-
-// style(frontend): refine glassmorphic effects and backdrop blurs in AppLayout
-
-// style(common): improve accessibility of medical severity badges
-
-// feat(feedback): add toast notification systems for API errors

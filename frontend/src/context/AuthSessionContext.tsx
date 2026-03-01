@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
 
-import type { RoleSession, UserRole } from '../types/auth'
+import type { RoleSession, UserRole, UserProfile } from '../types/auth'
 import {
   authSessionStorageKey,
   AuthSessionContext,
@@ -25,16 +25,38 @@ export const AuthSessionProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<RoleSession>(() => loadSession())
 
   const setRole = (role: UserRole) => {
-    const next: RoleSession = {
-      role,
-      tenantId: 'clinic-alpha',
-      displayName: roleDisplayNameMap[role],
-    }
-    setSession(next)
-    localStorage.setItem(authSessionStorageKey, JSON.stringify(next))
+    setSession(prev => {
+      const next: RoleSession = {
+        ...prev,
+        role,
+        displayName: prev.user?.name || roleDisplayNameMap[role],
+      }
+      localStorage.setItem(authSessionStorageKey, JSON.stringify(next))
+      return next
+    })
   }
 
-  const value = useMemo(() => ({ session, setRole }), [session])
+  const login = (user: UserProfile) => {
+    setSession(prev => {
+      const next: RoleSession = {
+        ...prev,
+        user,
+        displayName: user.name,
+        isAuthenticated: true
+      }
+      localStorage.setItem(authSessionStorageKey, JSON.stringify(next))
+      return next
+    })
+  }
+
+  const logout = () => {
+    localStorage.removeItem(authSessionStorageKey)
+    setSession({ ...defaultSession, isAuthenticated: false })
+    // We also need to trigger a backend logout
+    window.location.href = '/logout'
+  }
+
+  const value = useMemo(() => ({ session, setRole, login, logout }), [session])
 
   return <AuthSessionContext.Provider value={value}>{children}</AuthSessionContext.Provider>
 }
