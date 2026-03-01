@@ -91,3 +91,5 @@ class InteractionEngine:
             "dominant_severity_driver": scoring_result.dominant_severity_driver,
             "explanation": scoring_result.explanation
         }
+
+# refactor(backend): add type hints to InteractionEngine for improved static analysis
