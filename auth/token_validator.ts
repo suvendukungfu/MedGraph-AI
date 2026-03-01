@@ -4,6 +4,8 @@ export interface UserSession {
     name: string;
     picture: string;
     expires_at?: number;
+    role?: string;
+    tenantId?: string;
     [key: string]: any;
 }
 

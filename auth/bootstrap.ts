@@ -26,18 +26,15 @@ export async function initializeAuth(req: any, sessionId: string): Promise<void>
             const state = req.query.state as string;
 
             if (code && state) {
-                // 2. Process authorization code silently
+                // 2. Process authorization code
                 await processOauthCallback(sessionId, code, state);
-
-                // 3. In typical JS frameworks, redirecting clears query params 
-                // e.g. res.redirect(req.path) would happen here to clear URL params.
             }
         }
 
-        // 4. Check session validity automatically by fetching the optional user
+        // 3. Check session validity automatically by fetching the optional user
         getOptionalUser(sessionId);
 
-        // 5. Lock initialization for this specific request processing 
+        // 4. Lock initialization for this specific request processing 
         if (req) {
             _AUTH_INITIALIZED.add(req);
         }
@@ -47,5 +44,6 @@ export async function initializeAuth(req: any, sessionId: string): Promise<void>
         if (req) {
             _AUTH_INITIALIZED.add(req);
         }
+        throw e; // Re-throw to allow the calling route to handle the error
     }
 }

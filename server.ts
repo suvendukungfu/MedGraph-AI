@@ -47,7 +47,8 @@ app.get('/oauth2callback', async (req, res) => {
         res.redirect('/dashboard');
     } catch (e: any) {
         console.error("Auth callback failed:", e);
-        res.status(500).send("Authentication failed.");
+        const error = encodeURIComponent(e.message || "Authentication failed.");
+        res.redirect(`/login?error=${error}`);
     }
 });
 
@@ -149,7 +150,3 @@ app.get('/api/secure-health-data', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });
-
-// refactor(auth): simplify session ID generation logic
-
-// refactor(backend): harden session validation middleware

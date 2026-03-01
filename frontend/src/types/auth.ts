@@ -6,6 +6,8 @@ export interface UserProfile {
   name: string
   picture?: string
   expires_at?: number
+  role?: UserRole
+  tenantId?: string
 }
 
 export interface RoleSession {

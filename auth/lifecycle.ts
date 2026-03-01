@@ -2,6 +2,7 @@ import { handleOauthCallback } from './oauth_service';
 import { createSession, getCurrentUser, logout as baseLogout } from './session_manager';
 import { handleAuthError } from './error_handler';
 import { validateToken, UserSession } from './token_validator';
+import { getProfileByEmail } from './profiles';
 
 /**
  * Silently exchange authorization code and create a session.
@@ -13,9 +14,24 @@ import { validateToken, UserSession } from './token_validator';
 export async function processOauthCallback(sessionId: string, authCode: string, state: string): Promise<void> {
     try {
         const userInfo = await handleOauthCallback(sessionId, authCode, state);
+
+        // Role-based logic: Lookup existing profile
+        const profile = getProfileByEmail(userInfo.email);
+
+        if (!profile) {
+            console.warn(`Unauthorized login attempt: ${userInfo.email}`);
+            throw new Error(`Access Denied: No profile exists for ${userInfo.email}. Please contact the administrator.`);
+        }
+
+        // Enrich session with role and tenant info from the existing profile
+        userInfo.role = profile.role;
+        userInfo.tenantId = profile.tenantId;
+        userInfo.name = profile.name;
+
         createSession(sessionId, userInfo);
     } catch (e) {
         handleAuthError(e);
+        throw e;
     }
 }
 

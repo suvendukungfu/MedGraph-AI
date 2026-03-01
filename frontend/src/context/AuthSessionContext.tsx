@@ -41,6 +41,8 @@ export const AuthSessionProvider = ({ children }: { children: ReactNode }) => {
       const next: RoleSession = {
         ...prev,
         user,
+        role: user.role || prev.role || 'doctor',
+        tenantId: user.tenantId || prev.tenantId || 'clinic-alpha',
         displayName: user.name,
         isAuthenticated: true
       }

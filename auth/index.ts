@@ -14,3 +14,4 @@ export * from './bootstrap';
 export * from './lifecycle';
 export * from './error_handler';
 export * from './token_validator';
+export * from './profiles';

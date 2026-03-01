@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import { useLocation, Navigate } from 'react-router-dom'
+import { useAuthSession } from '../hooks/useAuthSession'
 
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -6,9 +8,18 @@ const fadeUp = {
 }
 
 export const LoginPage = () => {
+    const { session } = useAuthSession()
+    const location = useLocation()
+    const queryParams = new URLSearchParams(location.search)
+    const error = queryParams.get('error')
+
+    // If user is already authenticated, redirect them away from login
+    if (session.isAuthenticated) {
+        return <Navigate to="/" replace />
+    }
+
     const handleGoogleLogin = () => {
         // The Vite proxy will intercept this and forward to http://localhost:3000/login
-        // which initiates the Google OAuth callback
         window.location.href = '/login'
     }
 
@@ -44,9 +55,18 @@ export const LoginPage = () => {
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
                         MediGraph AI
                     </h1>
-                    <p className="text-slate-500 font-medium text-sm mb-10 leading-relaxed">
+                    <p className="text-slate-500 font-medium text-sm mb-8 leading-relaxed">
                         Secure clinical intelligence and polypharmacy management system. Sign in to access your secure workspace.
                     </p>
+
+                    {error && (
+                        <div className="w-full mb-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-xs font-semibold flex items-center gap-3">
+                            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-left">{decodeURIComponent(error)}</p>
+                        </div>
+                    )}
 
                     <button
                         onClick={handleGoogleLogin}
@@ -84,5 +104,3 @@ export const LoginPage = () => {
         </section>
     )
 }
-
-// style(login): fine-tune entrance sequence timing for LoginPage
