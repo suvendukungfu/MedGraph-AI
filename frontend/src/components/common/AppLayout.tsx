@@ -111,3 +111,5 @@ export const AppLayout = () => {
 # style(frontend): refine glassmorphic effects and backdrop blurs in AppLayout
 
 # style(common): improve accessibility of medical severity badges
+
+# feat(feedback): add toast notification systems for API errors
