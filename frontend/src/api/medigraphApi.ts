@@ -19,7 +19,7 @@ import {
   mockQueuedWorkflow,
   mockReadiness,
 } from '../mocks/demoData'
-import { httpClient } from './httpClient'
+import { httpClient, API_BASE_URL } from './httpClient'
 
 const DEMO_MODE = (import.meta.env.VITE_DEMO_MODE ?? 'false').toLowerCase() === 'true'
 
@@ -190,7 +190,9 @@ export const medigraphApi = {
       return mockReadiness()
     }
 
-    const response = await httpClient.get<ReadinessStatus>('/health/ready')
+    const response = await httpClient.get<ReadinessStatus>('/health/ready', {
+      baseURL: API_BASE_URL.replace('/api/v1', '')
+    })
     return response.data
   },
 
