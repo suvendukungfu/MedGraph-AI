@@ -54,3 +54,5 @@ def test_interaction_engine():
 
 if __name__ == "__main__":
     test_interaction_engine()
+
+# test(ml): add edge case tests for zero-interaction prescriptions
