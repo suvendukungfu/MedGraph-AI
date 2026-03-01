@@ -107,3 +107,5 @@ export const AppLayout = () => {
     </div>
   )
 }
+
+# style(frontend): refine glassmorphic effects and backdrop blurs in AppLayout
