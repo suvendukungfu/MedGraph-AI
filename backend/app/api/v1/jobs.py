@@ -7,11 +7,10 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from pydantic import BaseModel
 
 from app.api.dependencies import (
-    get_interaction_records,
     get_medication_repository,
+    fetch_relevant_interactions,
     rate_limit_dependency,
 )
-from app.services.interactions.models import InteractionRecord
 from app.services.scheduling.schedule_optimizer import MedicationDosage
 from app.workers.celery_app import celery_app
 from app.workers.tasks import (
@@ -118,7 +117,6 @@ async def submit_ocr_job(
 )
 async def submit_interactions_job(
     request: PrescriptionsRequest,
-    db_records: List[InteractionRecord] = Depends(get_interaction_records),
 ) -> Dict[str, Any]:
     _ensure_job_backend_available()
 
@@ -128,7 +126,10 @@ async def submit_interactions_job(
             detail="Medication list cannot be empty.",
         )
 
+    # Fetch real clinical records involving these drugs
+    db_records = fetch_relevant_interactions(request.prescribed_drugs)
     records_payload = [row.model_dump(mode="json") for row in db_records]
+    
     try:
         task = analyze_interactions_task.delay(request.prescribed_drugs, records_payload)
     except Exception as exc:
@@ -155,7 +156,6 @@ async def submit_interactions_job(
 )
 async def submit_schedule_job(
     request: ScheduleRequest,
-    db_records: List[InteractionRecord] = Depends(get_interaction_records),
 ) -> Dict[str, Any]:
     _ensure_job_backend_available()
 
@@ -164,6 +164,9 @@ async def submit_schedule_job(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Dosage list cannot be empty.",
         )
+
+    drug_list = [d.drug_name for d in request.dosages]
+    db_records = fetch_relevant_interactions(drug_list)
 
     dosages_payload = [row.model_dump(mode="json") for row in request.dosages]
     records_payload = [row.model_dump(mode="json") for row in db_records]

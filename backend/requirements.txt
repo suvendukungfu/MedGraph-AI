@@ -12,3 +12,5 @@ opencv-python-headless
 pytesseract
 Pillow
 rapidfuzz
+motor
+pymongo

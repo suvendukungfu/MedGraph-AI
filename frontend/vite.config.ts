@@ -14,6 +14,10 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
+      '/api/me': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
       '/api/secure-health-data': {
         target: 'http://localhost:3000',
         changeOrigin: true,
@@ -34,5 +38,3 @@ export default defineConfig({
     },
   },
 })
-
-# chore(build): optimize vite manual chunks for faster dashboard loading
