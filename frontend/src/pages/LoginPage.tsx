@@ -84,3 +84,5 @@ export const LoginPage = () => {
         </section>
     )
 }
+
+# style(login): fine-tune entrance sequence timing for LoginPage
