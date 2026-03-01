@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 
 from app.core.config import get_settings
 from app.domain.models.adherence import Base as AdherenceBase
+from app.domain.models.user import Base as UserBase
 
 # Initialize environment variables from .env
 load_dotenv()
@@ -56,6 +57,7 @@ def get_mongo_db():
 
 def init_database() -> None:
     AdherenceBase.metadata.create_all(bind=engine)
+    UserBase.metadata.create_all(bind=engine)
 
 def check_database_health() -> bool:
     try:
