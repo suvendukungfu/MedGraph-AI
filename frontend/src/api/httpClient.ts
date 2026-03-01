@@ -10,6 +10,19 @@ export const httpClient = axios.create({
   },
 })
 
+import { useAuthStore } from '../store/authStore'
+
+httpClient.interceptors.request.use(
+  (config) => {
+    const token = useAuthStore.getState().token
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
 httpClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<{ detail?: string; error?: string }>) => {
