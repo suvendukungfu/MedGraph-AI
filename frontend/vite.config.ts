@@ -34,3 +34,5 @@ export default defineConfig({
     },
   },
 })
+
+# chore(build): optimize vite manual chunks for faster dashboard loading
