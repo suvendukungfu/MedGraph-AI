@@ -1,56 +1,39 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthSession } from '../../hooks/useAuthSession'
-import { parseJwtFromCookie } from '../../utils/jwtCookie'
+import { httpClient } from '../../api/httpClient'
+import { useAuthStore } from '../../store/authStore'
 
 export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
     const [verifying, setVerifying] = useState(true)
-    const { session, login } = useAuthSession()
+    const { session, login, logout } = useAuthSession()
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
     const location = useLocation()
 
     useEffect(() => {
         const verifySession = async () => {
-            try {
-                // 1. Try the local JWT cookie first (fastest — no network needed)
-                const jwtPayload = parseJwtFromCookie()
-                if (jwtPayload && jwtPayload.email && jwtPayload.role && jwtPayload.role !== '__pending__') {
-                    login({
-                        user_id: jwtPayload.sub,
-                        email: jwtPayload.email,
-                        name: jwtPayload.name,
-                        picture: jwtPayload.picture,
-                        role: jwtPayload.role,
-                        tenantId: jwtPayload.tenant_id,
-                        expires_at: jwtPayload.exp,
-                    })
-                    setVerifying(false)
-                    return
-                }
+            if (!isAuthenticated) {
+                setVerifying(false)
+                return
+            }
 
-                // 2. Fallback: call the FastAPI /me endpoint (validates the JWT server-side)
-                const response = await fetch('/api/v1/auth/me', { credentials: 'include' })
-                if (response.ok) {
-                    const data = await response.json()
-                    if (data.email && data.role) {
-                        login({
-                            user_id: data.user_id,
-                            email: data.email,
-                            name: data.name,
-                            picture: data.picture,
-                            role: data.role,
-                            tenantId: data.tenant_id,
-                        })
-                    }
+            try {
+                // Call the FastAPI /me endpoint to validate the JWT is still valid server-side
+                const response = await httpClient.get('/auth/me')
+                if (response.status === 200 && response.data.role) {
+                    // Update role locally if it somehow changed
+                    login({ role: response.data.role })
                 }
-            } catch (e) {
-                console.error('Auth verification failed', e)
+            } catch (e: any) {
+                console.error('Auth verification failed', e.response?.data || e.message)
+                logout() // Force clear if token is invalid
             } finally {
                 setVerifying(false)
             }
         }
 
         verifySession()
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [isAuthenticated]) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (verifying) {
         return (
