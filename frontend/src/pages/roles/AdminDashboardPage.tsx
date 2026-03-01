@@ -63,3 +63,5 @@ export const AdminDashboardPage = () => {
     </section>
   )
 }
+
+# feat(admin): add dashboard metrics placeholders for system observability
