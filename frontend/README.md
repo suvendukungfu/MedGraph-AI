@@ -71,3 +71,5 @@ export default defineConfig([
   },
 ])
 ```
+
+# docs(frontend): document component hierarchy and state management flow
