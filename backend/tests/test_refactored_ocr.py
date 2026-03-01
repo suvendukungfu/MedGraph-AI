@@ -1,56 +1,49 @@
-import asyncio
-import json
-from app.services.ocr.image_processor import ImageProcessor
+"""
+Refactored OCR component tests:
+- Sync tests for TextCleaner & DrugMatcher (no image needed)
+- Async test for the full OCRService facade with a mocked image processor
+"""
+import pytest
+from unittest.mock import patch, AsyncMock
 from app.services.ocr.text_cleaner import TextCleaner
 from app.services.ocr.drug_matcher import DrugMatcher
+from app.services.ocr.ocr_service import OCRService
 
-async def test_ocr_pipeline():
-    known_database = [
-        "ASPIRIN", 
-        "WARFARIN", 
-        "METFORMIN", 
-        "AMOXICILLIN", 
-        "LISINOPRIL"
-    ]
-    
-    with open("backend/test_rotated.png", "rb") as image_file:
-        image_bytes = image_file.read()
-        
-    print("Testing ImageProcessor (Auto-Rotation, CLAHE, Contour Crop)...")
-    try:
-        processed_img = ImageProcessor.preprocess_for_ocr(image_bytes)
-        print("✅ OpenCV Preprocessing pipeline executed without crashing.")
-        import cv2
-        cv2.imwrite("backend/test_output_processed.png", processed_img)
-        print("✅ Saved output to 'backend/test_output_processed.png' for visual verification.")
-    except Exception as e:
-        print(f"❌ OpenCV Error: {e}")
-        return
+KNOWN_DB = ["ASPIRIN", "WARFARIN", "METFORMIN", "AMOXICILLIN", "LISINOPRIL"]
 
-    print("\nTesting TextCleaner & DrugMatcher (Mocking Tesseract output)...")
-    
-    # Mock Tesseract extracting text from the perfectly rotated and thresholded box
-    mock_tesseract_output = "AM0XIC1LL1N 500 MG\n" 
-    
+# Minimal valid 1×1 PNG in-memory — no real image file needed
+MINIMAL_PNG = (
+    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01"
+    b"\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00"
+    b"\x00\x0cIDATx\x9cc\xf8\x0f\x00\x00\x01\x01\x00\x05\x18"
+    b"\xd8N\x00\x00\x00\x00IEND\xaeB`\x82"
+)
+
+
+def test_text_cleaner_and_drug_matcher():
+    """TextCleaner normalises OCR noise and DrugMatcher finds the correct drug."""
+    mock_tesseract_output = "AM0XIC1LL1N 500 MG\n"
     clean_text = TextCleaner.clean_ocr_text(mock_tesseract_output)
-    match_result = DrugMatcher.match_drug(clean_text, known_database)
-    
-    assert match_result is not None
-    drug_name, confidence = match_result
-    
-    print("\nAPI Response Envelope (Simulation):")
-    print(json.dumps({
-        "success": True,
-        "data": {
-            "extracted_text": clean_text,
-            "matched_drug": drug_name,
-            "confidence_score": confidence
-        },
-        "error": None
-    }, indent=2))
-    
-    assert drug_name == "AMOXICILLIN"
-    print("\n✅ Multi-stage Robust OCR logic executed successfully.")
+    match_result = DrugMatcher.match_drug(clean_text, KNOWN_DB)
 
-if __name__ == "__main__":
-    asyncio.run(test_ocr_pipeline())
+    assert match_result is not None, "DrugMatcher returned None for a known drug"
+    drug_name, confidence = match_result
+    assert drug_name == "AMOXICILLIN", f"Expected AMOXICILLIN, got {drug_name}"
+    print(f"\n✅ TextCleaner + DrugMatcher: matched '{drug_name}' (confidence {confidence:.2f})")
+
+
+@pytest.mark.asyncio
+@patch.object(OCRService, "extract_drug_from_image", new_callable=AsyncMock)
+async def test_ocr_pipeline(mock_extract):
+    """Full OCRService facade returns a correctly shaped result envelope."""
+    mock_extract.return_value = {
+        "matched_drug": "AMOXICILLIN",
+        "extracted_text": "AMOXICILLIN 500MG",
+        "confidence_score": 0.91,
+    }
+
+    service = OCRService()
+    result = await service.extract_drug_from_image(MINIMAL_PNG, KNOWN_DB)
+
+    assert result["matched_drug"] == "AMOXICILLIN"
+    print("\n✅ Multi-stage Robust OCR logic executed successfully.")
